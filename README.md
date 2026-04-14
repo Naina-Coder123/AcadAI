@@ -56,4 +56,5 @@ Most AI tools:
 ## 🧠 System Architecture
 
 ### 🧩 Workflow Explanation
-(./workflow.jpg)
+
+![Workflow](./workflow.jpg)
