@@ -886,6 +886,12 @@ def web_search(query: str, top_k: int = 5) -> List[Dict]:
 def call_llm(prompt: str, system: str = "") -> str:
     """Call only Mistral AI. Returns empty string if MISTRAL_API_KEY is missing or the API fails."""
     mistral_key = os.getenv("MISTRAL_API_KEY")
+    # Streamlit Cloud stores deployment secrets in st.secrets, not in a local .env file.
+    if not mistral_key:
+        try:
+            mistral_key = st.secrets.get("MISTRAL_API_KEY", "")
+        except Exception:
+            mistral_key = ""
     if not mistral_key:
         return ""
 
@@ -902,7 +908,7 @@ def call_llm(prompt: str, system: str = "") -> str:
                 "Content-Type": "application/json",
             },
             json={
-                "model": os.getenv("MISTRAL_MODEL", "mistral-large-latest"),
+                "model": os.getenv("MISTRAL_MODEL") or (st.secrets.get("MISTRAL_MODEL", "mistral-large-latest") if hasattr(st, "secrets") else "mistral-large-latest"),
                 "temperature": 0.1,
                 "messages": messages,
             },
@@ -1368,6 +1374,168 @@ def agent_badge(name: str, action: str, result: str,
         unsafe_allow_html=True)
 
 
+
+
+# ── Professional Learning UI Renderers ────────────────────────────────────────
+
+def html_escape(value: str) -> str:
+    return (value or "").replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def split_numbered_items(text: str) -> List[Tuple[str, str]]:
+    """Return (label, body) pairs from numbered/day-wise generated text."""
+    raw = clean_text(text or "")
+    if not raw:
+        return []
+    pattern = r"(?=(?:^|\s)(?:Day\s*\d+|\d+\.|Q\d+\.|Question\s*\d+)\s*[:.)-])"
+    parts = [p.strip() for p in re.split(pattern, raw) if p.strip()]
+    out = []
+    for i, part in enumerate(parts, 1):
+        m = re.match(r"(Day\s*\d+|\d+\.|Q\d+\.|Question\s*\d+)\s*[:.)-]?\s*(.*)", part, flags=re.I)
+        if m:
+            label = m.group(1).replace(".", "").strip()
+            body = m.group(2).strip()
+        else:
+            label, body = f"Item {i}", part
+        out.append((label, body))
+    return out
+
+
+def parse_flashcards_text(cards: str) -> List[Tuple[str, str]]:
+    """Parse common Q/A flashcard text into structured cards."""
+    text = cards or ""
+    pairs: List[Tuple[str, str]] = []
+    pattern = re.compile(
+        r"(?:^|\n)\s*(?:Q\s*\d+\.?|Question\s*\d+\.?|Q\.?)[\s:-]*(.*?)\s*(?:\n|\s+)A\s*\d*\.?[\s:-]*(.*?)(?=(?:\n\s*(?:Q\s*\d+\.?|Question\s*\d+\.?|Q\.?)[\s:-])|\Z)",
+        flags=re.I | re.S,
+    )
+    for m in pattern.finditer(text):
+        q = clean_text(m.group(1))
+        a = clean_text(m.group(2))
+        if q and a:
+            pairs.append((q, a))
+    if pairs:
+        return pairs
+
+    # Fallback: split lines into alternating question/answer-like blocks.
+    items = split_numbered_items(text)
+    for label, body in items:
+        if "?" in body:
+            q, _, rest = body.partition("?")
+            pairs.append((q.strip() + "?", rest.strip() or "Review the corresponding concept from the retrieved evidence."))
+        elif body:
+            pairs.append((f"What should I remember about {label}?", body))
+    return pairs[:25]
+
+
+def render_flashcards_professional(cards: str, topic: str):
+    pairs = parse_flashcards_text(cards)
+    if not pairs:
+        st.markdown(cards)
+        return
+    st.markdown(
+        f"""
+        <div class='study-toolbar'>
+          <div class='study-title-block'>
+            <h3>Flashcards</h3>
+            <p>{html_escape(topic)} · {len(pairs)} active recall cards</p>
+          </div>
+          <div class='badge-row'>
+            <span class='small-badge'>🧠 Active Recall</span>
+            <span class='small-badge green'>✅ Exam Ready</span>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    html = ["<div class='flashcard-grid'>"]
+    for i, (q, a) in enumerate(pairs, 1):
+        html.append(
+            f"""
+            <div class='flashcard'>
+              <div class='card-number'>Card {i:02d}</div>
+              <div class='question'>Q. {html_escape(q)}</div>
+              <div class='answer'><strong>A.</strong> {html_escape(a)}</div>
+            </div>
+            """
+        )
+    html.append("</div>")
+    st.markdown("\n".join(html), unsafe_allow_html=True)
+
+
+def render_roadmap_professional(roadmap: str, topic: str, days: int):
+    items = split_numbered_items(roadmap)
+    if not items:
+        st.markdown(roadmap)
+        return
+    st.markdown(
+        f"""
+        <div class='study-toolbar'>
+          <div class='study-title-block'>
+            <h3>Personalized Roadmap</h3>
+            <p>{html_escape(topic)} · {days} day learning sprint</p>
+          </div>
+          <div class='badge-row'>
+            <span class='small-badge'>📘 Study</span>
+            <span class='small-badge orange'>📝 Practice</span>
+            <span class='small-badge green'>🔁 Revision</span>
+          </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    html = ["<div class='roadmap-timeline'>"]
+    for i, (label, body) in enumerate(items[:days], 1):
+        label = label if label.lower().startswith("day") else f"Day {i}"
+        html.append(
+            f"""
+            <div class='roadmap-day'>
+              <h4>{html_escape(label)}</h4>
+              <p>{html_escape(body)}</p>
+              <div class='badge-row'>
+                <span class='small-badge'>Concepts</span>
+                <span class='small-badge orange'>Questions</span>
+                <span class='small-badge green'>Review</span>
+              </div>
+            </div>
+            """
+        )
+    html.append("</div>")
+    st.markdown("\n".join(html), unsafe_allow_html=True)
+
+
+def render_revision_professional(notes: str, topic: str, mode: str):
+    st.markdown(
+        f"""
+        <div class='study-panel'>
+          <h3>Revision Notes</h3>
+          <p><strong>{html_escape(mode)}</strong> for <strong>{html_escape(topic)}</strong></p>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(notes)
+
+
+def render_questions_professional(questions: str, topic: str):
+    st.markdown(
+        f"""
+        <div class='study-toolbar'>
+          <div class='study-title-block'>
+            <h3>Likely Exam Questions</h3>
+            <p>{html_escape(topic)} · grouped for quick practice</p>
+          </div>
+        </div>
+        <div class='exam-grid'>
+          <div class='exam-card'><h4>2-Mark</h4><p>Definitions, key terms, short differences, direct formulas.</p></div>
+          <div class='exam-card'><h4>5-Mark</h4><p>Concept explanation, examples, diagrams, and short procedures.</p></div>
+          <div class='exam-card'><h4>10-Mark</h4><p>Complete theory, workflows, comparisons, and exam-style structure.</p></div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    st.markdown(questions)
+
 # ── Page config & CSS ──────────────────────────────────────────────────────────
 
 st.set_page_config(
@@ -1407,8 +1575,13 @@ st.markdown("""
   --shadow-md:0 18px 50px rgba(15,23,42,.10);
 }
 
-html, body, [class*="css"]{
+html, body{
   font-family:'Inter',system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--ink);
+}
+/* Avoid broad [class*="css"] selectors because Streamlit generates dynamic css-* classes.
+   That broad selector can accidentally make output text white/invisible after theme changes. */
+.stApp{
   color:var(--ink);
 }
 [data-testid="stAppViewContainer"]{
@@ -1577,8 +1750,6 @@ div[data-testid="stSidebar"] hr{margin:1.05rem 0;border-color:#eef2f7;}
 [data-testid="stTextInput"] input, [data-testid="stTextArea"] textarea{
   border-radius:14px!important;border:1px solid var(--line)!important;background:#fff!important;
   box-shadow:var(--shadow-xs)!important;
-  color:#0f766e!important;        /* ← question box text color */
-  font-weight:600!important;
 }
 [data-testid="stDataFrame"]{border-radius:16px;overflow:hidden;box-shadow:var(--shadow-sm);}
 div[data-testid="stVerticalBlockBorderWrapper"]{border-radius:20px!important;box-shadow:var(--shadow-sm);background:rgba(255,255,255,.92);}
@@ -1586,10 +1757,157 @@ div[data-testid="stVerticalBlockBorderWrapper"]{border-radius:20px!important;box
 
 /* Answer readability */
 [data-testid="stMarkdownContainer"] h1,[data-testid="stMarkdownContainer"] h2,[data-testid="stMarkdownContainer"] h3{letter-spacing:-.03em;}
-[data-testid="stMarkdownContainer"] p,[data-testid="stMarkdownContainer"] li{
-  line-height:1.65;
-  color:#1e3a5f;        /* ← answer text color */
+[data-testid="stMarkdownContainer"] p,[data-testid="stMarkdownContainer"] li{line-height:1.65;}
+
+/* ------------------------------------------------------------------
+   Theme-safe text color patch
+   Fixes the white/invisible text issue caused by Streamlit/theme CSS.
+   It keeps normal app text dark, while preserving white text inside
+   intentional dark components such as the hero banner and buttons.
+------------------------------------------------------------------ */
+.stApp,
+.main,
+.main .block-container,
+[data-testid="stAppViewContainer"],
+[data-testid="stMarkdownContainer"],
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li,
+[data-testid="stMarkdownContainer"] span,
+[data-testid="stMarkdownContainer"] div,
+[data-testid="stMarkdownContainer"] h1,
+[data-testid="stMarkdownContainer"] h2,
+[data-testid="stMarkdownContainer"] h3,
+[data-testid="stMarkdownContainer"] h4,
+[data-testid="stMarkdownContainer"] h5,
+[data-testid="stMarkdownContainer"] h6{
+  color:#111827 !important;
 }
+
+/* Preserve intended white text in custom dark sections */
+.hero, .hero *,
+.logo-mark, .logo-mark *,
+.hero-pill, .hero-pill *,
+.pipeline, .pipeline *,
+.pipeline-main, .pipeline-sub,
+.topbar-chip.dark, .topbar-chip.dark *,
+.stButton>button, .stButton>button *{
+  color:#ffffff !important;
+}
+.eyebrow, .eyebrow *{color:#99f6e4 !important;}
+.pipeline-index{color:#a7f3d0 !important;}
+
+/* Streamlit inputs/selects sometimes inherit dark theme colors */
+input, textarea, select,
+[data-testid="stTextInput"] input,
+[data-testid="stTextArea"] textarea,
+[data-baseweb="select"] *,
+[data-baseweb="input"] *,
+[data-baseweb="textarea"] *{
+  color:#111827 !important;
+}
+[data-testid="stTextInput"] input::placeholder,
+[data-testid="stTextArea"] textarea::placeholder{
+  color:#64748b !important;
+}
+
+/* Sidebar readability */
+div[data-testid="stSidebar"],
+div[data-testid="stSidebar"] *,
+div[data-testid="stSidebar"] [data-testid="stMarkdownContainer"],
+div[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] *{
+  color:#334155 !important;
+}
+div[data-testid="stSidebar"] h1,
+div[data-testid="stSidebar"] h2,
+div[data-testid="stSidebar"] h3,
+div[data-testid="stSidebar"] strong{
+  color:#111827 !important;
+}
+
+/* Keep metric/card text readable */
+.metric-card, .metric-card *,
+.agent-card, .agent-card *,
+.feature-card, .feature-card *,
+.section-heading, .section-heading *,
+.status-chip, .status-chip *{
+  color:#111827 !important;
+}
+.status-chip.chip-ok, .chip-ok *{color:#047857 !important;}
+.status-chip.chip-warn, .chip-warn *{color:#b45309 !important;}
+.status-chip.chip-info, .chip-info *{color:#1d4ed8 !important;}
+.metric-label{color:#64748b !important;}
+.agent-action,.agent-latency,.feature-card p,.section-heading p{color:#64748b !important;}
+
+
+
+/* ------------------------------------------------------------------
+   AcadAI UX Upgrade Patch: readable hero + professional study cards
+------------------------------------------------------------------ */
+.hero,
+.hero div,
+.hero span,
+.hero p,
+.hero h1,
+.hero h2,
+.hero h3,
+.hero strong,
+.hero .eyebrow,
+.hero .hero-pill,
+.hero .pipeline,
+.hero .pipeline *{
+  color:#ffffff !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.22);
+}
+.hero .eyebrow{color:#99f6e4 !important;}
+.hero .pipeline-sub{color:rgba(240,253,250,.82) !important;}
+.hero .pipeline-index{color:#a7f3d0 !important;text-shadow:none;}
+.hero h1{color:#ffffff !important;font-size:46px;line-height:1.04;}
+.hero p{color:rgba(255,255,255,.88) !important;font-size:16px;}
+
+.study-panel{
+  border:1px solid var(--line-2);
+  background:rgba(255,255,255,.96);
+  border-radius:22px;
+  padding:20px;
+  margin:16px 0;
+  box-shadow:var(--shadow-sm);
+}
+.study-panel h3{margin:0 0 8px;color:#111827 !important;font-size:21px;font-weight:900;letter-spacing:-.035em;}
+.study-panel p{color:#475569 !important;line-height:1.65;}
+.study-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:14px 0 18px;}
+.flashcard-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin:14px 0 18px;}
+.flashcard{
+  position:relative;min-height:145px;padding:18px;border-radius:20px;
+  background:linear-gradient(180deg,#ffffff 0%,#f8fbff 100%);
+  border:1px solid #dbeafe;box-shadow:0 10px 26px rgba(15,23,42,.07);
+}
+.flashcard:before{content:"";position:absolute;left:0;top:18px;bottom:18px;width:5px;border-radius:999px;background:linear-gradient(180deg,#0f766e,#2563eb);}
+.flashcard .card-number{font-size:11px;font-weight:900;letter-spacing:.09em;text-transform:uppercase;color:#2563eb !important;margin-bottom:9px;}
+.flashcard .question{font-size:15px;font-weight:900;color:#111827 !important;line-height:1.45;margin-bottom:12px;}
+.flashcard .answer{font-size:14px;color:#334155 !important;line-height:1.6;background:#ffffff;border:1px solid #eef2f7;border-radius:14px;padding:11px;}
+.exam-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:14px 0;}
+.exam-card,.roadmap-card,.viva-card{
+  border:1px solid #e2e8f0;background:#ffffff;border-radius:20px;padding:17px;
+  box-shadow:0 9px 24px rgba(15,23,42,.06);
+}
+.exam-card h4,.roadmap-card h4,.viva-card h4{margin:0 0 10px;color:#111827 !important;font-size:15px;font-weight:900;}
+.exam-card p,.roadmap-card p,.viva-card p{margin:0;color:#475569 !important;font-size:13px;line-height:1.65;}
+.roadmap-timeline{position:relative;margin:18px 0 10px;padding-left:24px;}
+.roadmap-timeline:before{content:"";position:absolute;left:8px;top:8px;bottom:8px;width:3px;border-radius:999px;background:linear-gradient(180deg,#0f766e,#2563eb);}
+.roadmap-day{position:relative;margin:0 0 14px;padding:16px 18px;border:1px solid #e2e8f0;background:#ffffff;border-radius:18px;box-shadow:0 8px 22px rgba(15,23,42,.055);}
+.roadmap-day:before{content:"";position:absolute;left:-22px;top:20px;width:15px;height:15px;border-radius:50%;background:#0f766e;border:3px solid #ecfdf5;box-shadow:0 0 0 4px rgba(15,118,110,.12);}
+.roadmap-day h4{font-size:15px;font-weight:900;color:#111827 !important;margin:0 0 8px;}
+.roadmap-day p{font-size:13px;color:#475569 !important;line-height:1.65;margin:0;}
+.badge-row{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px;}
+.small-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:6px 9px;font-size:11px;font-weight:850;background:#eff6ff;color:#1d4ed8 !important;border:1px solid #bfdbfe;}
+.small-badge.green{background:#ecfdf5;color:#047857 !important;border-color:#bbf7d0;}
+.small-badge.orange{background:#fff7ed;color:#b45309 !important;border-color:#fed7aa;}
+.study-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:10px 0 15px;flex-wrap:wrap;}
+.study-title-block h3{margin:0;color:#111827 !important;font-size:22px;font-weight:900;letter-spacing:-.035em;}
+.study-title-block p{margin:4px 0 0;color:#64748b !important;font-size:13px;}
+
+@media(max-width:980px){.study-grid,.flashcard-grid,.exam-grid{grid-template-columns:1fr}.hero h1{font-size:36px!important}.hero p{font-size:15px!important}}
+
 @media(max-width:980px){.hero-grid{grid-template-columns:1fr}.feature-grid{grid-template-columns:1fr 1fr}.hero h1{font-size:36px}.product-topbar{align-items:flex-start;flex-direction:column}}
 @media(max-width:640px){.feature-grid{grid-template-columns:1fr}.hero{padding:24px}.hero h1{font-size:32px}.topbar-right{justify-content:flex-start}}
 </style>
@@ -2019,7 +2337,7 @@ with tab_roadmap:
         rows, _ = retrieve_for_tool(roadmap_topic, k=8)
         roadmap = generate_learning_roadmap(roadmap_topic, roadmap_days, profile.get("preferred_level", difficulty), rows)
         st.session_state.setdefault("saved_roadmaps", []).append({"topic": roadmap_topic, "days": roadmap_days, "roadmap": roadmap})
-        st.markdown(roadmap)
+        render_roadmap_professional(roadmap, roadmap_topic, roadmap_days)
         with st.expander("Roadmap Evidence"):
             for r in rows:
                 st.markdown(f"**{r.get('source')} · page {r.get('page')} · subject {r.get('subject','')}**")
@@ -2055,12 +2373,9 @@ with tab_revision:
         cards = generate_flashcards(tool_topic, rows, count=flashcard_count)
         st.session_state.setdefault("saved_flashcards", []).append({"topic": tool_topic, "cards": cards})
 
-        st.markdown("### Revision Notes")
-        st.markdown(notes)
-        st.markdown("### Likely Exam Questions")
-        st.markdown(questions)
-        st.markdown("### Flashcards")
-        st.markdown(cards)
+        render_revision_professional(notes, tool_topic, mode)
+        render_questions_professional(questions, tool_topic)
+        render_flashcards_professional(cards, tool_topic)
         with st.expander("Copy/export as Markdown"):
             export_md = f"# AcadAI Study Material: {tool_topic}\n\n## Revision Notes\n{notes}\n\n## Likely Questions\n{questions}\n\n## Flashcards\n{cards}"
             st.code(export_md, language="markdown")
