@@ -1577,6 +1577,8 @@ div[data-testid="stSidebar"] hr{margin:1.05rem 0;border-color:#eef2f7;}
 [data-testid="stTextInput"] input, [data-testid="stTextArea"] textarea{
   border-radius:14px!important;border:1px solid var(--line)!important;background:#fff!important;
   box-shadow:var(--shadow-xs)!important;
+  color:#0f766e!important;        /* ← question box text color */
+  font-weight:600!important;
 }
 [data-testid="stDataFrame"]{border-radius:16px;overflow:hidden;box-shadow:var(--shadow-sm);}
 div[data-testid="stVerticalBlockBorderWrapper"]{border-radius:20px!important;box-shadow:var(--shadow-sm);background:rgba(255,255,255,.92);}
@@ -1584,8 +1586,10 @@ div[data-testid="stVerticalBlockBorderWrapper"]{border-radius:20px!important;box
 
 /* Answer readability */
 [data-testid="stMarkdownContainer"] h1,[data-testid="stMarkdownContainer"] h2,[data-testid="stMarkdownContainer"] h3{letter-spacing:-.03em;}
-[data-testid="stMarkdownContainer"] p,[data-testid="stMarkdownContainer"] li{line-height:1.65;}
-
+[data-testid="stMarkdownContainer"] p,[data-testid="stMarkdownContainer"] li{
+  line-height:1.65;
+  color:#1e3a5f;        /* ← answer text color */
+}
 @media(max-width:980px){.hero-grid{grid-template-columns:1fr}.feature-grid{grid-template-columns:1fr 1fr}.hero h1{font-size:36px}.product-topbar{align-items:flex-start;flex-direction:column}}
 @media(max-width:640px){.feature-grid{grid-template-columns:1fr}.hero{padding:24px}.hero h1{font-size:32px}.topbar-right{justify-content:flex-start}}
 </style>
