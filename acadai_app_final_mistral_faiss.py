@@ -1591,7 +1591,42 @@ html, body{
     linear-gradient(180deg,#fbfdff 0%,var(--app-bg) 45%,#eef3f8 100%);
 }
 .main .block-container{padding-top:1.05rem;max-width:1240px;padding-bottom:3.5rem;}
-#MainMenu, footer, header {visibility:hidden;}
+#MainMenu, footer {visibility:hidden;}
+header {
+  visibility:visible !important;
+  background:transparent !important;
+  box-shadow:none !important;
+}
+[data-testid="collapsedControl"]{
+  visibility:visible !important;
+  display:flex !important;
+  opacity:1 !important;
+  position:fixed !important;
+  top:0.85rem !important;
+  left:0.85rem !important;
+  z-index:999999 !important;
+  width:44px !important;
+  height:44px !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:14px !important;
+  background:#ffffff !important;
+  border:1px solid #dbe4ef !important;
+  box-shadow:0 10px 28px rgba(15,23,42,.14) !important;
+}
+[data-testid="collapsedControl"] svg{
+  color:#0f172a !important;
+  stroke:#0f172a !important;
+  fill:none !important;
+}
+[data-testid="collapsedControl"]:hover{
+  background:#f8fafc !important;
+  border-color:#2563eb !important;
+  transform:translateY(-1px);
+}
+button[kind="header"], header button{
+  visibility:visible !important;
+}
 
 /* Sidebar: enterprise control panel */
 div[data-testid="stSidebar"]{
@@ -1910,6 +1945,236 @@ div[data-testid="stSidebar"] strong{
 
 @media(max-width:980px){.hero-grid{grid-template-columns:1fr}.feature-grid{grid-template-columns:1fr 1fr}.hero h1{font-size:36px}.product-topbar{align-items:flex-start;flex-direction:column}}
 @media(max-width:640px){.feature-grid{grid-template-columns:1fr}.hero{padding:24px}.hero h1{font-size:32px}.topbar-right{justify-content:flex-start}}
+
+
+/* ------------------------------------------------------------------
+   Final Professional Sidebar Visibility Patch
+   Clean light sidebar inspired by Notion AI / Perplexity / Microsoft Copilot.
+   This overrides Streamlit theme leakage and keeps every sidebar label visible.
+------------------------------------------------------------------ */
+section[data-testid="stSidebar"],
+div[data-testid="stSidebar"]{
+  background:linear-gradient(180deg,#f8fafc 0%,#eef4fb 100%) !important;
+  border-right:1px solid #dbe4ef !important;
+  box-shadow:10px 0 34px rgba(15,23,42,.055) !important;
+}
+section[data-testid="stSidebar"] [data-testid="stSidebarContent"],
+div[data-testid="stSidebar"] [data-testid="stSidebarContent"]{
+  background:transparent !important;
+  padding:1.2rem 1rem 2rem !important;
+}
+section[data-testid="stSidebar"] *,
+div[data-testid="stSidebar"] *,
+section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] *,
+div[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] *{
+  color:#0f172a !important;
+  opacity:1 !important;
+  text-shadow:none !important;
+}
+section[data-testid="stSidebar"] p,
+div[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] label,
+div[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] .stCaption,
+div[data-testid="stSidebar"] .stCaption,
+section[data-testid="stSidebar"] [data-testid="stCaptionContainer"],
+div[data-testid="stSidebar"] [data-testid="stCaptionContainer"]{
+  color:#475569 !important;
+  font-size:13px !important;
+  line-height:1.55 !important;
+  font-weight:550 !important;
+}
+section[data-testid="stSidebar"] h1,
+section[data-testid="stSidebar"] h2,
+section[data-testid="stSidebar"] h3,
+div[data-testid="stSidebar"] h1,
+div[data-testid="stSidebar"] h2,
+div[data-testid="stSidebar"] h3{
+  color:#0f172a !important;
+  font-weight:900 !important;
+  letter-spacing:-.035em !important;
+}
+section[data-testid="stSidebar"] hr,
+div[data-testid="stSidebar"] hr{
+  border-color:#dbe4ef !important;
+  margin:1.15rem 0 !important;
+}
+
+/* Sidebar controls */
+section[data-testid="stSidebar"] input,
+section[data-testid="stSidebar"] textarea,
+section[data-testid="stSidebar"] select,
+div[data-testid="stSidebar"] input,
+div[data-testid="stSidebar"] textarea,
+div[data-testid="stSidebar"] select{
+  background:#ffffff !important;
+  color:#0f172a !important;
+  border:1px solid #cbd5e1 !important;
+  border-radius:13px !important;
+  box-shadow:0 1px 2px rgba(15,23,42,.04) !important;
+}
+section[data-testid="stSidebar"] [data-baseweb="input"],
+section[data-testid="stSidebar"] [data-baseweb="select"],
+section[data-testid="stSidebar"] [data-baseweb="textarea"],
+div[data-testid="stSidebar"] [data-baseweb="input"],
+div[data-testid="stSidebar"] [data-baseweb="select"],
+div[data-testid="stSidebar"] [data-baseweb="textarea"]{
+  background:#ffffff !important;
+  border-radius:13px !important;
+}
+section[data-testid="stSidebar"] [data-baseweb="input"] *,
+section[data-testid="stSidebar"] [data-baseweb="select"] *,
+section[data-testid="stSidebar"] [data-baseweb="textarea"] *,
+div[data-testid="stSidebar"] [data-baseweb="input"] *,
+div[data-testid="stSidebar"] [data-baseweb="select"] *,
+div[data-testid="stSidebar"] [data-baseweb="textarea"] *{
+  color:#0f172a !important;
+}
+
+/* File uploader visibility */
+section[data-testid="stSidebar"] [data-testid="stFileUploader"] section,
+div[data-testid="stSidebar"] [data-testid="stFileUploader"] section{
+  background:#ffffff !important;
+  border:2px dashed #bfdbfe !important;
+  border-radius:18px !important;
+  padding:16px !important;
+  box-shadow:0 8px 24px rgba(37,99,235,.055) !important;
+}
+section[data-testid="stSidebar"] [data-testid="stFileUploader"] section:hover,
+div[data-testid="stSidebar"] [data-testid="stFileUploader"] section:hover{
+  border-color:#2563eb !important;
+  background:#f8fbff !important;
+}
+section[data-testid="stSidebar"] [data-testid="stFileUploader"] button,
+div[data-testid="stSidebar"] [data-testid="stFileUploader"] button{
+  background:#ffffff !important;
+  color:#0f172a !important;
+  border:1px solid #cbd5e1 !important;
+  box-shadow:0 2px 8px rgba(15,23,42,.06) !important;
+}
+section[data-testid="stSidebar"] [data-testid="stFileUploader"] button:hover,
+div[data-testid="stSidebar"] [data-testid="stFileUploader"] button:hover{
+  border-color:#2563eb !important;
+  color:#1d4ed8 !important;
+}
+
+/* Segmented control / radio-like buttons */
+section[data-testid="stSidebar"] [data-baseweb="button-group"] button,
+div[data-testid="stSidebar"] [data-baseweb="button-group"] button,
+section[data-testid="stSidebar"] [role="radiogroup"] label,
+div[data-testid="stSidebar"] [role="radiogroup"] label{
+  background:#ffffff !important;
+  border:1px solid #cbd5e1 !important;
+  color:#334155 !important;
+  border-radius:12px !important;
+  font-weight:750 !important;
+}
+section[data-testid="stSidebar"] [aria-checked="true"],
+div[data-testid="stSidebar"] [aria-checked="true"],
+section[data-testid="stSidebar"] [aria-selected="true"],
+div[data-testid="stSidebar"] [aria-selected="true"]{
+  background:linear-gradient(135deg,#2563eb,#0f766e) !important;
+  border-color:transparent !important;
+  color:#ffffff !important;
+  box-shadow:0 10px 20px rgba(37,99,235,.20) !important;
+}
+section[data-testid="stSidebar"] [aria-checked="true"] *,
+div[data-testid="stSidebar"] [aria-checked="true"] *,
+section[data-testid="stSidebar"] [aria-selected="true"] *,
+div[data-testid="stSidebar"] [aria-selected="true"] *{
+  color:#ffffff !important;
+}
+
+/* Toggle and slider readability */
+section[data-testid="stSidebar"] [data-testid="stSlider"] *,
+div[data-testid="stSidebar"] [data-testid="stSlider"] *{
+  color:#334155 !important;
+}
+section[data-testid="stSidebar"] [data-testid="stTickBar"] *,
+div[data-testid="stSidebar"] [data-testid="stTickBar"] *{
+  color:#64748b !important;
+}
+section[data-testid="stSidebar"] [data-testid="stThumbValue"],
+div[data-testid="stSidebar"] [data-testid="stThumbValue"]{
+  color:#2563eb !important;
+  font-weight:900 !important;
+}
+section[data-testid="stSidebar"] [data-baseweb="slider"] div[role="slider"],
+div[data-testid="stSidebar"] [data-baseweb="slider"] div[role="slider"]{
+  background:#2563eb !important;
+  border-color:#2563eb !important;
+}
+
+/* Sidebar brand card */
+.sidebar-brand-card{
+  padding:18px 16px 16px !important;
+  border:1px solid #dbe4ef !important;
+  border-radius:20px !important;
+  background:linear-gradient(135deg,#ffffff 0%,#f8fbff 70%,#eff6ff 100%) !important;
+  box-shadow:0 12px 28px rgba(15,23,42,.065) !important;
+  margin-bottom:18px !important;
+}
+.sidebar-brand-title{
+  font-size:20px !important;
+  font-weight:950 !important;
+  letter-spacing:-.045em !important;
+  color:#0f172a !important;
+}
+.sidebar-brand-subtitle{
+  font-size:12px !important;
+  color:#475569 !important;
+  font-weight:700 !important;
+  margin-top:6px !important;
+  line-height:1.5 !important;
+}
+
+
+
+/* Sidebar restore control: keep Streamlit's sidebar open/close button usable after collapse. */
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="collapsedControl"],
+button[title="Open sidebar"],
+button[aria-label="Open sidebar"],
+button[aria-label="Close sidebar"]{
+  visibility:visible !important;
+  display:flex !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+  z-index:999999 !important;
+}
+
+/* Keep the top header transparent but clickable so the sidebar restore icon is not lost. */
+header[data-testid="stHeader"]{
+  visibility:visible !important;
+  background:transparent !important;
+  height:3.25rem !important;
+  pointer-events:none !important;
+}
+header[data-testid="stHeader"] button,
+header[data-testid="stHeader"] [role="button"],
+header[data-testid="stHeader"] [data-testid="collapsedControl"],
+header[data-testid="stHeader"] [data-testid="stSidebarCollapsedControl"]{
+  pointer-events:auto !important;
+}
+
+/* Sidebar professional light theme and high contrast text. */
+section[data-testid="stSidebar"], div[data-testid="stSidebar"]{
+  background:#F8FAFC !important;
+  border-right:1px solid #E2E8F0 !important;
+}
+section[data-testid="stSidebar"] *, div[data-testid="stSidebar"] *{
+  color:#0F172A !important;
+}
+section[data-testid="stSidebar"] p, div[data-testid="stSidebar"] p,
+section[data-testid="stSidebar"] label, div[data-testid="stSidebar"] label,
+section[data-testid="stSidebar"] small, div[data-testid="stSidebar"] small{
+  color:#475569 !important;
+}
+section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2, section[data-testid="stSidebar"] h3,
+div[data-testid="stSidebar"] h1, div[data-testid="stSidebar"] h2, div[data-testid="stSidebar"] h3{
+  color:#0F172A !important;
+}
+
 </style>
 """, unsafe_allow_html=True)
 
@@ -1967,9 +2232,9 @@ st.markdown("""
 
 with st.sidebar:
     st.markdown("""
-    <div style="padding:14px 14px 12px;border:1px solid #e5e7eb;border-radius:18px;background:linear-gradient(135deg,#ffffff,#f8fbff);box-shadow:0 8px 24px rgba(15,23,42,.05);margin-bottom:14px;">
-      <div style="font-size:20px;font-weight:900;letter-spacing:-.04em;color:#0f172a;">🎓 AcadAI</div>
-      <div style="font-size:12px;color:#64748b;font-weight:650;margin-top:4px;">Control center for your AI learning workspace</div>
+    <div class="sidebar-brand-card">
+      <div class="sidebar-brand-title">🎓 AcadAI</div>
+      <div class="sidebar-brand-subtitle">Control center for your AI learning workspace</div>
     </div>
     """, unsafe_allow_html=True)
     st.header("Workspace")
