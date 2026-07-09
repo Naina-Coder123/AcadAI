@@ -1386,3 +1386,666 @@ Important documentation/image files:
 
 Interview Summary: The codebase is currently a single Streamlit application file with local FAISS assets and extensive documentation; explain logical modules, not imaginary file boundaries.
 
+---
+
+## SECTION 41: Resume Defense Pack for Current Resume Bullets
+
+Use this section when an interviewer points directly at the resume project entry. The goal is simple: every resume word should map to one code-backed explanation you can say naturally.
+
+Current resume entry:
+
+```latex
+\resumeProjectHeading
+{\textbf{AcadAI -- AI-Powered Study Assistant} \hspace{6pt}
+\href{https://github.com/Naina-Coder123/AcadAI}{ GitHub }
+\hspace{6pt} \href{https://acadai-2sgceocfpzdikyjhj2wgrf.streamlit.app/}{ Live }}{March 2026 -- Jun 2026}
+\vspace{-6pt}
+\begin{itemize}[leftmargin=0.25in]
+\small{
+\item \textbf{Tech:} Python, Streamlit, FAISS, SentenceTransformers, scikit-learn, Mistral API, RAG
+\item Built a Streamlit academic assistant for Q\&A, viva practice, revision notes, roadmaps, and flashcards.
+\item Implemented RAG workflows using FAISS retrieval, TF-IDF fallback search, citations, and grounded answer generation.
+\item Designed multi-agent flows for routing, reasoning, tutoring, critique, refinement, and response validation.
+\item Developed dashboards for retrieval testing, answer scores, evidence review, and session-based learning memory.
+}
+\end{itemize}
+```
+
+### 41.1 One-Minute Resume Explanation
+
+```mermaid
+flowchart TD
+    Resume[Resume Project: AcadAI] --> UI[Streamlit study assistant]
+    UI --> RAG[RAG retrieval]
+    RAG --> Agents[Multi-agent answer flow]
+    Agents --> Trust[Critic scores + grounding + evidence]
+    Trust --> Tools[Viva, revision, roadmap, flashcards]
+```
+
+Say this:
+
+```text
+AcadAI is a Streamlit-based academic study assistant. A student can ask questions, upload PDFs, or use a prebuilt FAISS store. The app retrieves relevant evidence, builds a grounded prompt for Mistral, and shows the final answer with citations, critic scores, grounding checks, and evidence tables. I also built learning tools like viva practice, revision notes, roadmaps, flashcards, retrieval testing, and session-based memory.
+```
+
+Do not say:
+
+```text
+I used MongoDB, ChromaDB, LangGraph, or LangChain chains.
+```
+
+Those are not implemented in the current code.
+
+Interview Summary: AcadAI is easiest to explain as "Streamlit UI + retrieval + Mistral agents + evidence/quality dashboard."
+
+---
+
+### 41.2 Resume Bullet 1: Tech Stack
+
+Resume line:
+
+```text
+Tech: Python, Streamlit, FAISS, SentenceTransformers, scikit-learn, Mistral API, RAG
+```
+
+```mermaid
+flowchart LR
+    Python --> Streamlit
+    Python --> FAISS
+    Python --> SentenceTransformers
+    Python --> Sklearn[scikit-learn]
+    Python --> Mistral[Mistral API]
+    FAISS --> RAG
+    Mistral --> RAG
+```
+
+Simple explanation:
+
+```text
+Python is the main language. Streamlit builds the UI. FAISS stores and searches vector embeddings. SentenceTransformers creates query embeddings. scikit-learn provides TF-IDF fallback retrieval. Mistral generates and evaluates answers. RAG combines retrieved evidence with LLM generation.
+```
+
+Code proof:
+
+```python
+import streamlit as st
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+import faiss
+from sentence_transformers import SentenceTransformer, CrossEncoder
+```
+
+Important nuance:
+
+- `faiss` and `sentence_transformers` are optional in code because imports are wrapped in `try/except`.
+- If unavailable, the app falls back to TF-IDF retrieval or shows a clear message.
+
+Possible interviewer questions:
+
+| Question | Easy Answer |
+|---|---|
+| Why Python? | It has strong AI, PDF, vector search, and Streamlit support. |
+| Why Streamlit? | It let me build a complete interactive AI workflow quickly in Python. |
+| Why FAISS? | It supports fast local vector similarity search over the prebuilt academic corpus. |
+| Why SentenceTransformers? | It generates semantic embeddings for FAISS query search. |
+| Why scikit-learn? | I used TF-IDF and cosine similarity as a lightweight fallback retriever. |
+| Why Mistral? | It powers answer generation, reasoning, critique, and study-material generation. |
+| What is RAG here? | Retrieve academic evidence first, then generate an answer using that evidence. |
+
+Common mistake:
+
+```text
+Saying "I used LangChain, ChromaDB, and MongoDB" because they sound impressive.
+```
+
+Better answer:
+
+```text
+I kept the stack honest and focused: Streamlit, FAISS, SentenceTransformers, scikit-learn, Mistral, and explicit Python orchestration.
+```
+
+Interview Summary: This tech stack is simple, defensible, and exactly matches the implementation.
+
+---
+
+### 41.3 Resume Bullet 2: Streamlit Academic Assistant
+
+Resume line:
+
+```text
+Built a Streamlit academic assistant for Q&A, viva practice, revision notes, roadmaps, and flashcards.
+```
+
+```mermaid
+flowchart TD
+    Streamlit[Streamlit App] --> Ask[Ask Tab: Q&A]
+    Streamlit --> Viva[Viva Studio]
+    Streamlit --> Roadmap[Roadmap]
+    Streamlit --> Revision[Revision Suite]
+    Revision --> Notes[Revision Notes]
+    Revision --> Questions[Likely Questions]
+    Revision --> Flashcards[Flashcards]
+```
+
+Simple explanation:
+
+```text
+The app is organized into Streamlit tabs. The Ask tab handles academic Q&A. Viva Studio creates and evaluates viva questions. Roadmap generates a day-wise study plan. Revision Suite creates notes, likely exam questions, and flashcards.
+```
+
+Code proof:
+
+```python
+tab_ask, tab_viva, tab_roadmap, tab_revision, tab_eval, tab_memory = st.tabs([
+    "Ask", "Viva Studio", "Roadmap", "Revision Suite", "Evaluation", "Memory"
+])
+```
+
+Feature-to-function map:
+
+| Resume Feature | Implemented Function/Area |
+|---|---|
+| Q&A | Ask tab, `retrieve_faiss`, `retrieve`, `tutor_agent` |
+| Viva practice | `generate_quiz`, `evaluate_quiz_answer` |
+| Revision notes | `generate_revision_notes` |
+| Roadmaps | `generate_learning_roadmap` |
+| Flashcards | `generate_flashcards`, `render_flashcards_professional` |
+
+Possible interviewer questions:
+
+| Question | Easy Answer |
+|---|---|
+| Is it a multi-page app? | No, it is one Streamlit file using tabs. |
+| Why tabs? | Tabs make the workflow easy: ask, practice, plan, revise, evaluate, remember. |
+| Are flashcards stored permanently? | No, they are stored in Streamlit session state for the current session. |
+| Are roadmaps personalized? | They use the session profile, difficulty level, weak topics, and retrieved evidence. |
+| Is viva evaluation automatic? | Yes, Mistral evaluates the answer when available; otherwise fallback text is shown. |
+
+Common mistake:
+
+```text
+Calling it a full LMS with persistent accounts.
+```
+
+Better answer:
+
+```text
+It is an AI learning assistant prototype, not a full LMS. It supports study workflows but does not implement accounts or persistent user storage.
+```
+
+Interview Summary: Say "I built one Streamlit workspace with multiple learning tabs."
+
+---
+
+### 41.4 Resume Bullet 3: RAG Workflows
+
+Resume line:
+
+```text
+Implemented RAG workflows using FAISS retrieval, TF-IDF fallback search, citations, and grounded answer generation.
+```
+
+```mermaid
+flowchart TD
+    Query[Student Query] --> Retrieve{Retrieval Mode}
+    Retrieve -->|FAISS enabled| FAISS[FAISS vector retrieval]
+    Retrieve -->|FAISS off/unavailable| TFIDF[TF-IDF fallback search]
+    FAISS --> Evidence[Evidence chunks]
+    TFIDF --> Evidence
+    Evidence --> Prompt[Prompt with citations]
+    Prompt --> Mistral[Mistral answer generation]
+    Mistral --> Grounding[Grounding check]
+    Grounding --> UI[Answer + evidence table]
+```
+
+Simple explanation:
+
+```text
+RAG means the app retrieves source evidence before generating an answer. If FAISS is enabled, it uses vector search. If FAISS is unavailable or uploads are used, it can use TF-IDF fallback search. The Tutor Agent receives retrieved evidence and asks Mistral to answer with citations.
+```
+
+Code proof: FAISS loading.
+
+```python
+def load_faiss_store(store_dir: str):
+    index_path = os.path.join(store_dir, "index.faiss")
+    pkl_path = os.path.join(store_dir, "index.pkl")
+    index = faiss.read_index(index_path)
+```
+
+Code proof: TF-IDF fallback.
+
+```python
+def build_index(chunks: List[Chunk]):
+    corpus = [c.text for c in chunks]
+    vec = TfidfVectorizer(stop_words="english", ngram_range=(1, 2), max_features=12000)
+    mat = vec.fit_transform(corpus)
+    return vec, mat
+```
+
+Code proof: evidence in prompt.
+
+```python
+evidence = "\n\n".join(f"[{r['doc_id']}] {r['evidence']}" for r in context_rows)
+prompt = (
+    f"Difficulty: {difficulty}\n"
+    f"Key concepts: {concepts}\n"
+    f"Student query: {query}\n\n"
+    f"Evidence:\n{evidence}"
+)
+```
+
+Important nuance:
+
+- Uploaded PDFs are parsed into chunks but are not embedded into FAISS at runtime.
+- Uploaded PDFs use the TF-IDF route unless the user separately enables an existing FAISS store.
+
+Possible interviewer questions:
+
+| Question | Easy Answer |
+|---|---|
+| What is RAG? | Retrieve relevant evidence first, then generate an answer using that context. |
+| Why not pure LLM? | Pure LLM can hallucinate; retrieval provides course-specific grounding. |
+| What is FAISS doing? | It searches nearest document vectors for the query embedding. |
+| What is TF-IDF fallback? | A keyword-based retrieval fallback using scikit-learn cosine similarity. |
+| What are citations? | The answer context includes document IDs like `[doc_id]` from retrieved chunks. |
+| Does RAG eliminate hallucinations? | No, it reduces them; grounding checks still matter. |
+
+Common mistake:
+
+```text
+Saying uploaded PDFs are embedded and inserted into FAISS automatically.
+```
+
+Better answer:
+
+```text
+In the current implementation, uploaded PDFs are chunked and searched with TF-IDF. FAISS is used when the existing vector store is enabled.
+```
+
+Interview Summary: Say "FAISS when available, TF-IDF as fallback, evidence goes into the Mistral prompt."
+
+---
+
+### 41.5 Resume Bullet 4: Multi-Agent Flow
+
+Resume line:
+
+```text
+Designed multi-agent flows for routing, reasoning, tutoring, critique, refinement, and response validation.
+```
+
+```mermaid
+flowchart TD
+    Query[User Query] --> Router[Router Agent]
+    Router --> Reasoning[Reasoning Agent]
+    Reasoning --> Tutor[Tutor Agent]
+    Tutor --> Critic[Critic Agent]
+    Critic --> Decision{Satisfactory?}
+    Decision -->|No| Refine[Refinement Pass]
+    Refine --> Critic
+    Decision -->|Yes| Grounding[Grounding Validation]
+    Grounding --> Final[Final UI Response]
+```
+
+Simple explanation:
+
+```text
+The agents are Python functions with separate responsibilities. Router chooses the route. Reasoning extracts key concepts and a plan. Tutor generates the answer. Critic scores the answer. If needed, refinement improves it. Grounding validation checks whether answer sentences are supported by evidence.
+```
+
+Code proof: route choices.
+
+```python
+def router_agent(query: str, db_match: bool, use_web: bool) -> Tuple[str, AgentTrace]:
+    if any(p in q_lower for p in realtime_kw) and use_web:
+        route = "Web Search"
+    elif db_match:
+        route = "RAG"
+    elif any(p in q_lower for p in general_kw):
+        route = "Direct LLM"
+```
+
+Code proof: critic dimensions.
+
+```python
+"Return ONLY valid JSON with keys: relevance (0-10), completeness (0-10), "
+"accuracy (0-10), clarity (0-10), overall (0-10), "
+"satisfactory (true if overall>=7 else false)"
+```
+
+Code proof: refinement loop.
+
+```python
+while (not scores.get("satisfactory")
+       and refine_count < max_refine
+       and scores.get("feedback")):
+    answer = refine_answer(query, answer, scores["feedback"], difficulty)
+```
+
+Important nuance:
+
+- These are not autonomous LangChain agents.
+- There is no LangGraph state machine.
+- The Streamlit Ask tab orchestrates function calls.
+
+Possible interviewer questions:
+
+| Question | Easy Answer |
+|---|---|
+| What is multi-agent here? | Separate Python functions play agent roles in a fixed pipeline. |
+| Is there a supervisor agent? | Not as a class; Streamlit orchestration acts as the controller. |
+| Is there tool calling? | No formal tool-calling loop; functions call retrieval, web, and LLM helpers directly. |
+| Why split into agents? | Separation of concerns: route, plan, teach, critique, validate. |
+| What does Critic validate? | It scores quality, while grounding separately checks evidence support. |
+| Is response validation the same as truth verification? | No. It is a lexical grounding check plus critic scoring. |
+
+Common mistake:
+
+```text
+Saying "I built autonomous agents with LangGraph."
+```
+
+Better answer:
+
+```text
+I built a deterministic, function-based multi-agent flow. It is easier to debug and explain than autonomous tool-calling agents.
+```
+
+Interview Summary: Say "agent roles are implemented as explicit Python functions, not a black-box agent framework."
+
+---
+
+### 41.6 Resume Bullet 5: Dashboards, Scores, Evidence, Memory
+
+Resume line:
+
+```text
+Developed dashboards for retrieval testing, answer scores, evidence review, and session-based learning memory.
+```
+
+```mermaid
+flowchart TD
+    Dashboard[Streamlit Dashboards] --> Eval[Retrieval Evaluation]
+    Dashboard --> Scores[Answer Quality Scores]
+    Dashboard --> Evidence[Evidence Review Table]
+    Dashboard --> Memory[Session Memory Tab]
+    Eval --> HitRate[Hit Rate + chart]
+    Scores --> Critic[Relevance, Completeness, Accuracy, Clarity]
+    Memory --> Chat[Chat history]
+    Memory --> Profile[Student profile]
+    Memory --> Weak[Weak topics]
+```
+
+Simple explanation:
+
+```text
+The app has dashboards that make the AI pipeline visible. The Evaluation tab tests retrieval against expected subjects. The Ask tab shows answer scores, grounding score, agent trace, and retrieved evidence. The Memory tab shows chat history, student profile, quiz attempts, weak topics, and saved flashcards.
+```
+
+Code proof: session state initialization.
+
+```python
+def init_learning_state():
+    st.session_state.setdefault("chat_history", [])
+    st.session_state.setdefault("quiz_questions", "")
+    st.session_state.setdefault("student_profile", {...})
+    st.session_state.setdefault("weak_topics", {})
+    st.session_state.setdefault("quiz_attempts", [])
+    st.session_state.setdefault("saved_flashcards", [])
+```
+
+Code proof: grounding score.
+
+```python
+score = round((supported / max(1, len(sents))) * 100, 1)
+status = "Strongly grounded" if score >= 75 else "Partially grounded" if score >= 45 else "Weakly grounded"
+```
+
+Code proof: retrieval hit rate.
+
+```python
+hit_rate = round((df_eval["Hit"] == "Yes").mean() * 100, 1)
+st.bar_chart(chart_df, x="Query", y="HitValue")
+```
+
+Possible interviewer questions:
+
+| Question | Easy Answer |
+|---|---|
+| What dashboards did you build? | Evaluation, answer scores, evidence review, agent trace, memory/profile views. |
+| What retrieval metric is implemented? | The dashboard calculates hit rate from expected subject matches. |
+| What answer scores are shown? | Relevance, completeness, accuracy, clarity, overall quality. |
+| What is evidence review? | A dataframe and debug expander show retrieved chunks, source, page, scores, and text. |
+| What is session memory? | Streamlit session state storing current-session history and learning data. |
+| Is memory persistent? | No, it is session-based only. |
+
+Common mistake:
+
+```text
+Claiming production analytics or persistent user analytics.
+```
+
+Better answer:
+
+```text
+The dashboards are in-app debugging and learning views, not a production analytics platform.
+```
+
+Interview Summary: Say "I made the AI pipeline inspectable through Streamlit dashboards."
+
+---
+
+### 41.7 The Safest 10 Answers to Memorize
+
+```mermaid
+flowchart TD
+    Safe[Safe Interview Answers] --> Honest[Be honest about implementation]
+    Safe --> Simple[Use simple wording]
+    Safe --> Evidence[Point to code feature]
+    Safe --> Limit[State limitations clearly]
+```
+
+You only need these:
+
+1. AcadAI is a Streamlit AI study assistant for academic Q&A and study workflows.
+2. It uses RAG by retrieving evidence before asking Mistral to generate an answer.
+3. FAISS is used for the existing vector store; TF-IDF is the fallback search path.
+4. Uploaded PDFs are parsed and chunked, but not embedded into FAISS at runtime.
+5. Multi-agent means separate Python functions for routing, reasoning, tutoring, critique, and validation.
+6. It does not use LangChain chains, LangGraph, ChromaDB, or MongoDB in the current code.
+7. Session memory is stored in `st.session_state`, so it is not long-term persistent memory.
+8. Grounding score is a lexical evidence-support check, not a perfect factuality guarantee.
+9. The dashboards expose retrieval tests, answer scores, evidence, agent traces, and memory.
+10. For production, I would add auth, persistent storage, safer secrets, modular services, tests, and observability.
+
+Interview Summary: If stuck, return to "implemented truth + limitation + production improvement."
+
+---
+
+### 41.8 Simple Architecture Diagram to Draw on a Whiteboard
+
+```mermaid
+flowchart TD
+    User[Student] --> UI[Streamlit UI]
+    UI --> Source{Source}
+    Source --> PDFs[Uploaded PDFs -> TF-IDF chunks]
+    Source --> FAISS[Existing FAISS store]
+    PDFs --> Retriever[Retriever]
+    FAISS --> Retriever
+    Retriever --> Agents[Router -> Reasoning -> Tutor -> Critic]
+    Agents --> Mistral[Mistral API]
+    Mistral --> Grounding[Grounding + scores]
+    Grounding --> Output[Answer, citations, evidence, memory]
+```
+
+How to explain line by line:
+
+1. The student interacts with Streamlit.
+2. The corpus comes from uploaded PDFs, demo chunks, or an existing FAISS store.
+3. Retrieval finds evidence using FAISS or TF-IDF.
+4. Agents decide the route, plan the answer, generate it, and critique it.
+5. Mistral powers generation when the API key is available.
+6. The app shows answer, citations, evidence, scores, and updates session memory.
+
+Interview Summary: This diagram is enough for most interviews.
+
+---
+
+### 41.9 Questions Directly Triggered by Each Resume Word
+
+```mermaid
+flowchart LR
+    ResumeWords[Resume Words] --> Questions[Likely Questions]
+    Questions --> Answers[Prepared Answers]
+```
+
+| Resume Word | What They May Ask | Prepared Answer |
+|---|---|---|
+| Python | What did Python handle? | UI logic, retrieval, parsing, agents, LLM calls, session state. |
+| Streamlit | What did you build in Streamlit? | Sidebar, tabs, controls, cards, dashboards, evidence tables. |
+| FAISS | Why FAISS? | Local vector search over a prebuilt academic corpus. |
+| SentenceTransformers | Where used? | To encode user queries for FAISS search. |
+| scikit-learn | Where used? | TF-IDF vectorizer and cosine similarity fallback retrieval. |
+| Mistral API | What did it do? | Generated answers, quiz feedback, roadmaps, flashcards, and critic scores. |
+| RAG | Explain in one line. | Retrieve evidence first, then generate grounded answer from that evidence. |
+| Q&A | How does answer flow work? | Query -> retrieval -> agents -> Mistral -> scores/evidence UI. |
+| Viva practice | What is generated? | Five viva-style questions and feedback on student answers. |
+| Revision notes | How generated? | Retrieved evidence plus revision prompt sent to Mistral. |
+| Roadmaps | What inputs used? | Topic, days, difficulty, student profile, weak topics, evidence. |
+| Flashcards | What format? | Q/A format parsed and rendered as flashcard cards. |
+| FAISS retrieval | Is it always used? | No, only when enabled and loaded successfully. |
+| TF-IDF fallback | Why needed? | Keeps retrieval working without FAISS or embedding model. |
+| Citations | What are citations? | Document IDs included with evidence chunks in the answer context. |
+| Grounded generation | How enforced? | Tutor system prompt says use only evidence; grounding checks support later. |
+| Multi-agent | Which agents? | Router, Reasoning, Tutor, Critic, plus learning generators. |
+| Routing | Route options? | RAG, Web Search, or Direct LLM. |
+| Reasoning | Output? | Key concepts, solution plan, tools, difficulty estimate. |
+| Tutoring | Responsibility? | Generate educational answer from evidence. |
+| Critique | Metrics? | Relevance, completeness, accuracy, clarity, overall. |
+| Refinement | When triggered? | If critic says unsatisfactory and max refinement not reached. |
+| Response validation | What validation? | Critic score plus grounding/evidence support check. |
+| Dashboards | Which dashboards? | Evaluation, scores, evidence, agent trace, memory. |
+| Retrieval testing | How works? | Query plus expected subject, compare top subject, compute hit rate. |
+| Answer scores | Source? | Mistral JSON critic or heuristic fallback. |
+| Evidence review | How shown? | Dataframe and expander with source/page/scores/evidence text. |
+| Session memory | Stored where? | `st.session_state`. |
+
+Interview Summary: Every resume word has a short, safe answer. Do not expand beyond this unless asked.
+
+---
+
+### 41.10 "If They Ask for Code" Snippets
+
+```mermaid
+flowchart TD
+    CodeAsk[If interviewer asks for code] --> Show1[Tabs]
+    CodeAsk --> Show2[Retrieval]
+    CodeAsk --> Show3[LLM]
+    CodeAsk --> Show4[Agents]
+    CodeAsk --> Show5[Memory]
+```
+
+Tabs:
+
+```python
+tab_ask, tab_viva, tab_roadmap, tab_revision, tab_eval, tab_memory = st.tabs([
+    "Ask", "Viva Studio", "Roadmap", "Revision Suite", "Evaluation", "Memory"
+])
+```
+
+FAISS retrieval entry:
+
+```python
+db_rows, match = retrieve_faiss(
+    query, faiss_index, chunks, embedding_model_name,
+    top_k=retrieval_top_k, candidate_k=candidate_k,
+    use_hybrid_rerank=use_hybrid_rerank,
+    use_cross_encoder=use_cross_encoder
+)
+```
+
+TF-IDF fallback:
+
+```python
+vec, mat = build_index(chunks)
+q_vec = vec.transform([query])
+sims = cosine_similarity(q_vec, mat).ravel()
+```
+
+Mistral call:
+
+```python
+r = requests.post(
+    "https://api.mistral.ai/v1/chat/completions",
+    headers={"Authorization": f"Bearer {mistral_key}"},
+    json={"model": "mistral-large-latest", "temperature": 0.1, "messages": messages}
+)
+```
+
+Memory:
+
+```python
+st.session_state.setdefault("chat_history", [])
+st.session_state.setdefault("weak_topics", {})
+st.session_state.setdefault("quiz_attempts", [])
+```
+
+Grounding:
+
+```python
+score = round((supported / max(1, len(sents))) * 100, 1)
+```
+
+Interview Summary: You do not need to memorize all code. Remember one snippet per concept.
+
+---
+
+### 41.11 Things You Should Never Claim
+
+```mermaid
+flowchart TD
+    Never[Never Claim] --> Mongo[MongoDB implemented]
+    Never --> Chroma[ChromaDB implemented]
+    Never --> LangGraph[LangGraph implemented]
+    Never --> LC[LangChain chains implemented]
+    Never --> Auth[Authentication implemented]
+    Never --> Persistent[Long-term persistent memory implemented]
+    Never --> RuntimeUploadFAISS[Uploaded PDFs are embedded into FAISS at runtime]
+```
+
+Safe replacement statements:
+
+| Unsafe Claim | Safe Claim |
+|---|---|
+| I used MongoDB. | MongoDB is a future improvement; current memory is Streamlit session state. |
+| I used ChromaDB. | Current vector store is local FAISS. |
+| I used LangGraph. | Current orchestration is explicit Python functions. |
+| I used LangChain chains. | The loader supports LangChain-style FAISS pickle metadata, but no LangChain runtime chains are used. |
+| I built authentication. | Authentication is not implemented. |
+| Memory is permanent. | Memory is session-based. |
+| Uploaded PDFs go into FAISS. | Uploaded PDFs are chunked and searched through TF-IDF in the current app. |
+
+Interview Summary: Strong candidates do not overclaim; they explain current state and future direction.
+
+---
+
+### 41.12 Ultra-Easy Story for Non-AI Interviewers
+
+```mermaid
+flowchart LR
+    Notes[Student notes] --> Search[Find relevant parts]
+    Search --> Explain[AI explains]
+    Explain --> Check[App checks evidence]
+    Check --> Study[Student studies better]
+```
+
+Say this:
+
+```text
+Think of AcadAI like a smart study desk. First it searches the student's notes. Then it asks the AI to explain using those notes. After that it shows where the answer came from and gives study tools like quizzes, flashcards, and revision plans.
+```
+
+Interview Summary: If the interviewer is not deep in AI, explain it as "search notes, explain answer, show proof, create study tools."
+
